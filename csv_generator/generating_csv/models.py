@@ -64,7 +64,8 @@ class Column(models.Model):
 
     name = models.CharField(max_length=200, db_index=True)
     type = models.CharField(max_length=100, choices=TYPE, blank=False)
-    data_scheme = models.ForeignKey(DataScheme, null=False, on_delete=models.CASCADE)
+    data_scheme = models.ForeignKey(DataScheme, null=False, on_delete=models.CASCADE, blank=False,
+                                    related_name='column_scheme')
     order = models.IntegerField(null=False, default=0)
     range_from = models.IntegerField(null=True, blank=True)
     range_to = models.IntegerField(null=True, blank=True)

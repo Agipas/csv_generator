@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="box">
+    <div class="columns is-desktop">
+        <div class="column">
+            <p class="is-size-2">Data Schemes</p>
+        </div>
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column">
+            <a href="{% url 'new_scheme' %}"><button class="button is-success is-normal">New schem</button></a>
+        </div>
+    </div>
+
+    <div class="columns is-centered">
+    <div class="column is-half">
+        <table class="table ">
+            <thead>
+            <tr>
+                <th><abbr title="Position">#</abbr></th>
+                <th>Title</th>
+                <th>Modified</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for scheme in schemes %}
+            <tr>
+                <th>{{ forloop.counter }}</th>
+                <td>{{ scheme.title }}</td>
+                <td>{{ scheme.date_updated |date:"Y-m-d G:i"  }}</td>
+                <td><a href="{% url 'scheme' scheme.slug %}"><button class="button is-info is-inverted is-small">Info</button></a>
+                    <a href="{% url 'scheme_delete' scheme.slug %}"><button class="button is-danger is-inverted is-small">Danger</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+
+{% endblock %}

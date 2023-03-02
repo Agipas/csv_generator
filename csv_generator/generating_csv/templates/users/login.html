@@ -1,0 +1,46 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+
+<body>
+<div class="columns is-mobile">
+    <div class="column is-half is-offset-one-quarter">
+        <div class="hero-body is-justify-content-center is-align-items-center">
+            <div class="columns is-flex is-flex-direction-column box  has-text-centered">
+                <form method="post">
+                    {% csrf_token %}
+                    <h3 class="title has-text">Login</h3>
+                    <div class="column">
+                        <label for="email">Username</label>
+                        {{ form.username }}
+                    </div>
+                    <div class="column">
+                        <label for="Name">Password</label>
+                        {{ form.password }}
+                    </div>
+                    <div class="column">
+                        {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                        <div class="notification is-danger">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="column">
+                        <button class="button is-primary is-fullwidth" type="submit">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
