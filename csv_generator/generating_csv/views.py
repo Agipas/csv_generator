@@ -2,14 +2,21 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.http import JsonResponse
+from django.template.defaultfilters import slugify
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
+
+from django.contrib import messages
 
 from .decorators import user_not_authenticated
-from .forms import LoginUserForm
+from .forms import LoginUserForm, DataSchemeColumnFormset, DataSchemeCreateForm
 from .models import *
+
+import pprint
+import json
+pp = pprint.PrettyPrinter(indent=4)
 
 
 @login_required
@@ -39,11 +46,121 @@ def error_404_view(request, exception):
 def new_scheme(request):
     if request.method == 'GET':
         schemes = DataScheme.objects.all()
-        print(schemes)
         return render(request, 'data_scheme/create.html', {'schemes': schemes})
 
 
-class DataSchemePage(ListView):
+class DataSchemeList(ListView):
     model = DataScheme
     template_name = 'data_scheme.html'
     context_object_name = 'schemes'
+
+
+class DataSchemeInline:
+    form_class = DataSchemeCreateForm
+    model = DataScheme
+    template_name = "data_scheme/data_scheme_create_or_update.html"
+
+    def form_valid(self, form):
+        named_formsets = self.get_named_formsets()
+        if not all((x.is_valid() for x in named_formsets.values())):
+            return self.render_to_response(self.get_context_data(form=form))
+        # pp.pprint(form)
+        # pp.pprint(form.title)
+        # form.slug = slugify(form.title + form.author)
+        self.object = form.save()
+        if not self.object.slug:
+            self.object.slug = slugify(self.object.title) + self.object.author.username
+            self.object.save()
+        # for every formset, attempt to find a specific formset save function
+        # otherwise, just save.
+        for name, formset in named_formsets.items():
+            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
+            if formset_save_func is not None:
+                formset_save_func(formset)
+            else:
+                formset.save()
+        return redirect('list')
+
+    def formset_columns_valid(self, formset):
+        """
+        Hook for custom formset saving.Useful if you have multiple formsets
+        """
+        columns = formset.save(commit=False)  # self.save_formset(formset, contact)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for column in columns:
+            column.data_scheme = self.object
+            column.save()
+
+
+class DataSchemeCreate(DataSchemeInline, CreateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DataSchemeCreate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {
+                'columns': DataSchemeColumnFormset(prefix='columns'),
+            }
+        else:
+            return {
+                'columns': DataSchemeColumnFormset(self.request.POST or None, self.request.FILES or None, prefix='columns'),
+            }
+
+
+class DataSchemeUpdate(DataSchemeInline, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DataSchemeUpdate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        return {
+            'columns': DataSchemeColumnFormset(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='columns'),
+        }
+
+
+def delete_column(request, pk):
+    try:
+        column = Column.objects.get(id=pk)
+    except Column.DoesNotExist:
+        messages.success(request, 'Object Does not exit')
+        # todo:change redirect
+        return redirect('update_scheme', pk=column.product.id)
+
+    column.delete()
+    messages.success(request, 'Variant deleted successfully')
+    # todo:change redirect
+    return redirect('update_scheme', pk=column.product.id)
+
+
+class DataSchemeDetail(DetailView):
+    model = DataScheme
+    template_name = 'data_scheme/data_scheme_info.html'
+    context_object_name = 'data_scheme'
+    slug_url_kwarg = 'scheme_slug'
+
+    def get_context_data(self, **kwargs):
+        context = super(DataSchemeDetail, self).get_context_data(**kwargs)
+        context['columns'] = Column.objects.filter(data_scheme=self.get_object())
+        context['datasets'] = DataSet.objects.filter(data_scheme=self.get_object())
+        return context
+
+
+def generate_data(request):
+    if request.POST:
+        scheme_id = int(request.POST['id'])
+        rows = int(request.POST['rows'])
+        columns = Column.objects.filter(data_scheme=scheme_id)
+        product = DataScheme.objects.filter(pk=scheme_id).first()
+        file = DataSet(data_scheme=product)
+        file.save()
+    print(file)
+    data = {
+        'date_created': file.pk,
+    }
+    return JsonResponse(data)

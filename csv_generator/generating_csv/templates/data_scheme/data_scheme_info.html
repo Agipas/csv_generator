@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script>
+$(document).ready(function() {
+    $('#generate_data').click(function() {
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}',
+             'rows': $('#rows_id').val()},
+        });
+        $.ajax({
+            url: '{% url "generate-data" %}',
+            method: 'POST',
+            dataType: 'json',
+            data: {'id': {{ data_scheme.pk }} },
+            success: function(data) {
+                console.log('AJAX request succeeded!');
+                location.reload()
+            },
+            error: function(xhr, status, error) {
+                console.log('AJAX request failed!');
+            }
+        });
+    });
+});
+</script>
+<div class="box">
+    <div class="columns">
+        <div class="column">
+            <span class="title">Sample scheme: {{ data_scheme.title }}</span>
+            <div class="block"></div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th><abbr title="Position">#</abbr></th>
+                    <th>Column name</th>
+                    <th>Column type</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for column in columns %}
+                <tr>
+                    <th>{{ forloop.counter }}</th>
+                    <td>{{ column.name }}</td>
+                    <td>{{ column.type }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        <div class="column"><a href="{% url 'update_scheme' data_scheme.pk %}">Edit scheme</a></div>
+    </div>
+    <div class="columns">
+        <div class="column">
+            <div class="block">
+                <span class="title">Data sets</span>
+                <table class="table" id="data_set">
+                    <thead>
+                    <tr>
+                        <th><abbr title="Position">#</abbr></th>
+                        <th>Created</th>
+                        <th>State</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for dataset in datasets %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ dataset.date_created|date:"Y-m-d G:i" }}</td>
+                        <td>
+                            {% if dataset.file %}
+                            <span class="tag icon-text has-text-success">
+                              <span class="icon">
+                                <i class="fas fa-check-square"></i>
+                              </span>
+                              <span>Success</span>
+                            </span>
+                            {% else %}
+                            <span class="tag icon-text has-text-warning">
+                               <span class="icon">
+                                <i class="fas fa-spinner fa-pulse"></i>
+                              </span>
+                              <span>Processing</span>
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if dataset.file %}
+                            <a href="{{ dataset.file.url }}">Download</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="column">
+            <div class="columns">
+                <div class="column">
+                    <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">Rows:</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <p class="control">
+                                <input class="input is-primary" type="text" id="rows_id" placeholder="Primary input">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="column">
+                    <button class="button is-success" id="generate_data">Generate data</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

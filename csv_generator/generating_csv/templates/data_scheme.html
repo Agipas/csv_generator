@@ -9,7 +9,7 @@
         <div class="column"></div>
         <div class="column"></div>
         <div class="column">
-            <a href="{% url 'new_scheme' %}"><button class="button is-success is-normal">New schem</button></a>
+            <a href="{% url 'create_scheme' %}"><button class="button is-success is-normal">New schem</button></a>
         </div>
     </div>
 
@@ -28,9 +28,9 @@
             {% for scheme in schemes %}
             <tr>
                 <th>{{ forloop.counter }}</th>
-                <td>{{ scheme.title }}</td>
+                <td><a href="{% url 'scheme_info' scheme.slug %}">{{ scheme.title }}</a></td>
                 <td>{{ scheme.date_updated |date:"Y-m-d G:i"  }}</td>
-                <td><a href="{% url 'scheme' scheme.slug %}"><button class="button is-info is-inverted is-small">Info</button></a>
+                <td><a href="{% url 'update_scheme' scheme.pk %}"><button class="button is-info is-inverted is-small">Info</button></a>
                     <a href="{% url 'scheme_delete' scheme.slug %}"><button class="button is-danger is-inverted is-small">Danger</button></a>
                 </td>
             </tr>

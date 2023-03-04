@@ -12,21 +12,25 @@ class LoginUserForm(AuthenticationForm):
 
 
 class DataSchemeCreateForm(forms.ModelForm):
-    class Meta:
-        fields = ['title', 'column_separator', 'string_character']
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'input is-primary is-rounded', 'type': 'text', 'placeholder': 'Title'}))
+    column_separator = forms.ChoiceField(choices=DataScheme.SEPARATOR)
+    string_character = forms.ChoiceField(choices=DataScheme.QUALIFIER)
 
-
-class DataSchemeUpdateForm(forms.ModelForm):
     class Meta:
-        fields = ['title', 'column_separator', 'string_character']
+        model = DataScheme
+        fields = ['title']
 
 
 class ColumnCreateForm(forms.ModelForm):
+    # order = forms.DecimalField(attrs={'class': 'select is-primary', 'placeholder': 'Title'})
+
     class Meta:
-        fields = ['name', 'type', 'order', 'range_from', 'range_to']
+        model = Column
+        fields = ['name', 'type', 'range_from', 'range_to', 'order']
 
 
-class ColumnUpdateForm(forms.ModelForm):
-    class Meta:
-        fields = ['name', 'type', 'order', 'range_from', 'range_to']
-
+DataSchemeColumnFormset = inlineformset_factory(
+    DataScheme, Column, form=ColumnCreateForm,
+    extra=1, can_delete=True, can_delete_extra=True
+)

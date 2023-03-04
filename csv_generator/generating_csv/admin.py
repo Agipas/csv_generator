@@ -10,9 +10,14 @@ class ColumnAdmin(admin.StackedInline):
 
 class DataSchemeAdmin(admin.ModelAdmin):
     inlines = [ColumnAdmin]
-    list_display = ('id', 'title', 'date_created', 'date_updated', 'author')
-    prepopulated_fields = {'slug': ('title',)}
+    list_display = ('id', 'title', 'date_created', 'date_updated', 'author', 'slug')
+    prepopulated_fields = {'slug': ('title', 'author')}
+
+
+class DataSetAdmin(admin.ModelAdmin):
+    list_display = ('id', 'date_created', 'date_updated', 'data_scheme', 'file')
 
 
 admin.site.register(DataScheme, DataSchemeAdmin)
 admin.site.register(Column)
+admin.site.register(DataSet, DataSetAdmin)
