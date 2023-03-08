@@ -14,7 +14,8 @@ urlpatterns = [
     path('create/', DataSchemeCreate.as_view(), name='create_scheme'),
     path('update/<int:pk>/', DataSchemeUpdate.as_view(), name='update_scheme'),
     path('delete-column/<int:pk>/', delete_column, name='delete_column'),
-    path('generate-data/', generate_data, name='generate-data'),
+    path('generate-data/', generate_dataset, name='generate-data'),
+    path('get-file/', get_file, name='get-file'),
 ]
 
 handler404 = 'generating_csv.views.error_404_view'

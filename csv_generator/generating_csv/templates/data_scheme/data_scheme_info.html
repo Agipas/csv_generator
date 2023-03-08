@@ -8,6 +8,7 @@ $(document).ready(function() {
             data: {csrfmiddlewaretoken: '{{ csrf_token }}',
              'rows': $('#rows_id').val()},
         });
+
         $.ajax({
             url: '{% url "generate-data" %}',
             method: 'POST',
@@ -15,7 +16,42 @@ $(document).ready(function() {
             data: {'id': {{ data_scheme.pk }} },
             success: function(data) {
                 console.log('AJAX request succeeded!');
-                location.reload()
+                 var prep_icon = '<span class="tag icon-text has-text-warning">'+
+                               '<span class="icon"><i class="fas fa-spinner fa-pulse">'+
+                               '</i></span><span>Processing</span></span>';
+
+                var newRow = $('<tr id=row-'+data.id+'>').addClass("item");
+                newRow.append($('<td>').text(data.id));
+                newRow.append($('<td>').text(data.date_created));
+                newRow.append($('<td>').append(prep_icon));
+                $('#data_set').append(newRow);
+
+                $.ajax({
+                url: '{% url "get-file" %}',
+                method: 'GET',
+                dataType: 'json',
+                data: {'id': data.file },
+                success: function(res) {
+                    console.log('sec request succeeded!');
+                    console.log(res);
+                    $("#row-"+data.id).remove();
+                    var ready_icon = '<span class="tag icon-text has-text-success">'+
+                                '<span class="icon"><i class="fas fa-check-square"></i>'+
+                                '</span><span>Success</span></span>';
+                    var download_button = '<a href="/media/'+res.file+'">Download</a>';
+
+                    var newRow = $('<tr id =row-'+data.id+'>').addClass("item");
+                    newRow.append($('<td>').text(data.id));
+                    newRow.append($('<td>').text(data.date_created));
+                    newRow.append($('<td>').append(ready_icon));
+                    newRow.append($('<td>').append(download_button));
+                    $('#data_set').append(newRow);
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('AJAX request failed!');
+                }
+            });
             },
             error: function(xhr, status, error) {
                 console.log('AJAX request failed!');
@@ -23,6 +59,7 @@ $(document).ready(function() {
         });
     });
 });
+
 </script>
 <div class="box">
     <div class="columns">
@@ -65,8 +102,10 @@ $(document).ready(function() {
                     </tr>
                     </thead>
                     <tbody>
+                    {% with datasets_count=0 %}
+                    {% endwith %}
                     {% for dataset in datasets %}
-                    <tr>
+                    <tr id="data_count" data-counter="{{ forloop.counter }}" class="item">
                         <th>{{ forloop.counter }}</th>
                         <td>{{ dataset.date_created|date:"Y-m-d G:i" }}</td>
                         <td>
@@ -101,17 +140,18 @@ $(document).ready(function() {
             <div class="columns">
                 <div class="column">
                     <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label">Rows:</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="field">
-                            <p class="control">
-                                <input class="input is-primary" type="text" id="rows_id" placeholder="Primary input">
-                            </p>
+                        <div class="field-label is-normal">
+                            <label class="label">Rows:</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <p class="control">
+                                    <input class="input is-primary" type="text" id="rows_id"
+                                           placeholder="number of rows">
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 </div>
                 <div class="column">
                     <button class="button is-success" id="generate_data">Generate data</button>

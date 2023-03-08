@@ -1,3 +1,5 @@
+from time import sleep
+
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -13,10 +15,7 @@ from django.contrib import messages
 from .decorators import user_not_authenticated
 from .forms import LoginUserForm, DataSchemeColumnFormset, DataSchemeCreateForm
 from .models import *
-
-import pprint
-import json
-pp = pprint.PrettyPrinter(indent=4)
+from .tasks import generate_csv
 
 
 @login_required
@@ -64,9 +63,6 @@ class DataSchemeInline:
         named_formsets = self.get_named_formsets()
         if not all((x.is_valid() for x in named_formsets.values())):
             return self.render_to_response(self.get_context_data(form=form))
-        # pp.pprint(form)
-        # pp.pprint(form.title)
-        # form.slug = slugify(form.title + form.author)
         self.object = form.save()
         if not self.object.slug:
             self.object.slug = slugify(self.object.title) + self.object.author.username
@@ -151,16 +147,32 @@ class DataSchemeDetail(DetailView):
         return context
 
 
-def generate_data(request):
+def generate_dataset(request):
     if request.POST:
         scheme_id = int(request.POST['id'])
         rows = int(request.POST['rows'])
-        columns = Column.objects.filter(data_scheme=scheme_id)
-        product = DataScheme.objects.filter(pk=scheme_id).first()
-        file = DataSet(data_scheme=product)
+        scheme = DataScheme.objects.filter(pk=scheme_id).first()
+        file = DataSet(data_scheme=scheme)
         file.save()
-    print(file)
-    data = {
-        'date_created': file.pk,
-    }
-    return JsonResponse(data)
+        numbers = DataSet.objects.filter(data_scheme=scheme_id).count()
+        data = {
+            'scheme': scheme.pk,
+            'file': file.pk,
+            'id': numbers,
+            'date_created': file.date_created.strftime("%Y-%m-%d %H:%M")
+        }
+        generate_csv.delay(scheme.pk, rows, file.pk)
+        return JsonResponse(data)
+
+
+def get_file(request):
+    if request.GET:
+        scheme_id = int(request.GET['id'])
+        while True:
+            data_set = DataSet.objects.filter(pk=scheme_id).first()
+            if data_set and data_set.file:
+                data = {
+                    'file': str(data_set.file),
+                }
+                return JsonResponse(data, safe=False)
+            sleep(0.2)

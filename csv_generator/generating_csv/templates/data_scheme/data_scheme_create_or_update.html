@@ -9,38 +9,42 @@
     <div class="block" style="margin-top:30px">
         <div class="container">
             <div class="box">
-                <span class="title">
-                   Add Scheme
-                </span>
-                {% for field in form %}
-                {% if field.label == 'Title' %}
-                <div class="field">
-                    <label class="label">{{field.label}}</label>
-                    <div class="control">
-                        {{field}}
-                        {% if field.help_text %}
-                        <small style="color: grey">{{ field.help_text }}</small>
+                <div class="columns">
+                    <div class="column is-one-fifth">
+                        <span class="title">
+                           Add Scheme
+                        </span>
+                        {% for field in form %}
+                        {% if field.label == 'Title' %}
+                        <div class="field">
+                            <label class="label">{{field.label}}</label>
+                            <div class="control">
+                                {{field}}
+                                {% if field.help_text %}
+                                <small style="color: grey">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <p style="color: red">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="field">
+                            <label class="label">{{field.label}}</label>
+                            <div class="select is-rounded  is-primary is-fullwidth">
+                                {{field}}
+                                {% if field.help_text %}
+                                <small style="color: grey">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <p style="color: red">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
                         {% endif %}
-                        {% for error in field.errors %}
-                        <p style="color: red">{{ error }}</p>
                         {% endfor %}
                     </div>
                 </div>
-                {% else %}
-                <div class="">
-                    <label class="label">{{field.label}}</label>
-                    <div class="select is-rounded  is-primary ">
-                        {{field}}
-                        {% if field.help_text %}
-                        <small style="color: grey">{{ field.help_text }}</small>
-                        {% endif %}
-                        {% for error in field.errors %}
-                        <p style="color: red">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -73,12 +77,12 @@
         </span>
                 <table class="table">
                     <thead>
-                        <th>Column name</th>
-                        <th>Type</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Order</th>
-                        <th>Delete?</th>
+                    <th>Column name</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Order</th>
+                    <th>Delete?</th>
                     </thead>
                     <tbody id="item-columns">  <!-- id="item-inlineformsetname" -->
                     <!-- formset non forms errors -->
@@ -136,7 +140,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                <button type="button"class="button is-success is-light is-normal">
+                <button type="button" class="button is-success is-light is-normal">
                     <a href="#" id="add-column-button" class="btn add-columns">Add Column</a>
                 </button>
 
@@ -172,6 +176,7 @@
           $('#id_columns-TOTAL_FORMS').attr('value', count+1);
       });
   });
+
 
 
 
