@@ -21,7 +21,7 @@ from .tasks import generate_csv
 
 @login_required
 def index(request):
-    return render(request, 'base.html')
+    return redirect('list')
 
 
 @login_required

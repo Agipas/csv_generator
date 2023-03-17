@@ -9,7 +9,6 @@ urlpatterns = [
     path("login/", LoginUser.as_view(), name='login'),
     path('logout/', logout_user, name='logout'),
     path('list/', cache_page(60*60, key_prefix="schemes")(DataSchemeList.as_view()), name='list'),
-    # path('info/<int:pk>', DataSchemeDetail.as_view(), name='scheme_info'),
     path('info/<slug:scheme_slug>', DataSchemeDetail.as_view(), name='scheme_info'),
     path('<scheme>/delete', index, name='scheme_delete'),
     path('create/', DataSchemeCreate.as_view(), name='create_scheme'),
