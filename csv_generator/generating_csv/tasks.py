@@ -1,7 +1,14 @@
 from celery import shared_task
+import datetime
+from django.utils import timezone
 
 from .models import Column, DataScheme, DataSet
 from .utils import generate_csv_file
+
+
+@shared_task()
+def delete_data_set_without_file():
+    return DataSet.objects.filter(file='', date_created__lt=timezone.now() + datetime.timedelta(minutes=-5)).delete()
 
 
 @shared_task
@@ -21,3 +28,5 @@ def generate_csv(id, rows, data_set_id):
     if is_file:
         data_set.file = is_file
         data_set.save()
+        delete_data_set_without_file.apply_async((), countdown=60*5)
+        return is_file

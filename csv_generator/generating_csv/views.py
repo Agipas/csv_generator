@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.core.cache import cache
 
 from django.contrib import messages
 
@@ -62,6 +63,7 @@ class DataSchemeInline:
     def form_valid(self, form):
         named_formsets = self.get_named_formsets()
         if not all((x.is_valid() for x in named_formsets.values())):
+            form.add_error(None, "There were errors in the form.")
             return self.render_to_response(self.get_context_data(form=form))
         self.object = form.save()
         if not self.object.slug:
@@ -75,6 +77,7 @@ class DataSchemeInline:
                 formset_save_func(formset)
             else:
                 formset.save()
+        cache.delete('*schemes*')
         return redirect('list')
 
     def formset_columns_valid(self, formset):

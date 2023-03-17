@@ -19,15 +19,28 @@ class DataSchemeCreateForm(forms.ModelForm):
 
     class Meta:
         model = DataScheme
-        fields = ['title']
+        fields = ['title', 'column_separator', 'string_character']
 
 
 class ColumnCreateForm(forms.ModelForm):
-    # order = forms.DecimalField(attrs={'class': 'select is-primary', 'placeholder': 'Title'})
+    type = forms.ChoiceField(choices=Column.TYPE, widget=forms.Select(attrs={'class': 'input is-primary',
+                                                                             'type': 'select',
+                                                                             'placeholder': 'Type'}))
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'input is-primary', 'type': 'text',
+                                      'placeholder': 'Name'}))
+    order = forms.DecimalField(widget=forms.NumberInput(attrs={'class': 'input is-primary',
+                                                               'type': 'number', 'min': 1}))
+    range_from = forms.DecimalField(widget=forms.NumberInput(attrs={'class': 'input is-primary', 'type': 'number'}),
+                                    required=False)
+    range_to = forms.DecimalField(widget=forms.NumberInput(attrs={'class': 'input is-primary', 'type': 'number'}),
+                                  required=False)
+    DELETE = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'input is-primary is-large',
+                                                                  'type': 'checkbox'}))
 
     class Meta:
         model = Column
-        fields = ['name', 'type', 'range_from', 'range_to', 'order']
+        fields = ['name', 'type', 'range_from', 'range_to', 'order', 'DELETE']
 
 
 DataSchemeColumnFormset = inlineformset_factory(

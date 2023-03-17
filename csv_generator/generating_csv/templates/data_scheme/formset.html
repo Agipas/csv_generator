@@ -1,0 +1,92 @@
+
+
+{% for formss in formset %}
+{{ formss.id }}
+                    {{ formss.management_form }}
+                    <tr id="columns-{{ forloop.counter0 }}" class=hide_all>  <!-- id="inlineformsetname-counter" -->
+                        <td>
+                            <div class="field">
+                                {{ formss.name }}
+                                {% for error in formss.name.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="field">
+                                 <div class="select  is-primary is-fullwidth">
+                                {{ formss.type }}
+                                 </div>
+                                {% for error in formss.type.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="field">
+                                {{ formss.range_from }}
+                                {% for error in formss.range_from.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="field">
+                                {{ formss.range_to }}
+                                {% for error in formss.range_to.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="field">
+                                {{ formss.order }}
+                                {% for error in formss.order.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="field">
+                                {{ formss.DELETE }}
+                            </div>
+                        </td>
+
+                        {% comment %} for delete
+                        {% if formss.instance.pk %}
+                        <td>
+                            <button type="button" class="btn btn-danger" data-toggle="modal"
+                                    data-target="#exampleModal{{formss.instance.pk}}">
+                                Delete
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog"
+                                 aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are
+                                                Your
+                                                Sure
+                                                You Want To Delete This?</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="{% url 'delete_column' formss.instance.pk %}" type="button"
+                                               class="btn btn-primary">Yes, Delete</a>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        {% endif %}{% endcomment %}
+                    </tr>
+{% endfor %}

@@ -2,8 +2,9 @@ import csv
 import secrets
 import names
 from random_address import real_random_address_by_state
+from string import ascii_letters
 from datetime import datetime
-from random import randint
+from random import randint, sample
 from faker import Faker
 import os
 fake = Faker()
@@ -32,18 +33,19 @@ def generate_csv_file(columns, range_from, range_to,
                     case 'email':
                         new_row.append(f"{secrets.token_hex(8)}@gmail.com")
                     case 'address':
-                        address = real_random_address_by_state('CA')
-                        new_row.append(address['city'] + ' ' + address['address1'])
+                        # address = real_random_address_by_state('CA')
+                        # new_row.append(address['city'] + ' ' + address['address1'])
+                        new_row.append(''.join(sample(ascii_letters, randint(4, 20))))
                     case 'job':
-                        new_row.append('job')
+                        new_row.append(''.join(sample(ascii_letters, randint(4, 20))))
                     case 'domain_name':
-                        new_row.append('domain_name')
+                        new_row.append(''.join(sample(ascii_letters, randint(4, 20))))
                     case 'phon_number':
                         new_row.append(randint(100000000, 999999999))
                     case 'company_name':
-                        new_row.append('company_name')
+                        new_row.append(''.join(sample(ascii_letters, randint(4, 20))))
                     case 'text':
-                        new_row.append('text')
+                        new_row.append(''.join(sample(ascii_letters, randint(4, 20))))
                     case 'date':
                         new_row.append(fake.date_between(start_date='today', end_date='+30y'))
 
