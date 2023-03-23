@@ -160,9 +160,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-/csv_generator/generating_csv/migrations/*.py
-/csv_generator/db.sqlite3
-/csv_generator/static/
+/core/generating_csv/migrations/*.py
+/core/db.sqlite3
+/core/static/
 .DS_Store
-.idea/csv-editor.xml
 */.DS_Store
+/csv_generator/generating_csv/migrations/
+/csv_generator/media/
+/redis_test.py
+.idea/
